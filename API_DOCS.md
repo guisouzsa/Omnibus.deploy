@@ -215,6 +215,51 @@ Content-Type: application/json
 
 ---
 
+### Veículos
+
+#### Listar Todos
+```http
+GET /api/buses
+Authorization: Bearer {token}
+```
+
+#### Cadastrar Ônibus
+```http
+POST /api/buses
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "driver_id": 1,
+    "plate": "ABC1D23",
+    "capacity": 45,
+    "mainRoute": "Ingá - Centro"
+}
+```
+
+#### Ver Ônibus
+```http
+GET /api/buses/{id}
+Authorization: Bearer {token}
+```
+
+#### Atualizar Ônibus
+```http
+PUT /api/buses/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "mainRoute": "Ingá - Timbaúba - Centro"
+}
+```
+
+#### Deletar Ônibus
+```http
+DELETE /api/drivers/{id}
+Authorization: Bearer {token}
+```
+
 ## 🔒 Segurança
 
 ### Tokens Sanctum
@@ -264,3 +309,6 @@ php artisan serve
 ### Spending Limits
 - `limit_amount`: numérico, entre 0 e 9999999.99
 - Apenas um limite por usuário por mês
+
+### Buses
+- `plate`: único
