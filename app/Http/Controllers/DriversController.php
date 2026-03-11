@@ -14,7 +14,7 @@ class DriversController extends Controller
      */
     public function index(): JsonResponse
     {
-        $drivers = Drivers::with('user')->get();
+        $drivers = Drivers::with('user')->paginate(15);
         return response()->json($drivers, 200);
     }
 
@@ -23,7 +23,12 @@ class DriversController extends Controller
      */
     public function store(StoreDriverRequest $request): JsonResponse
     {
-        $driver = Drivers::create($request->validated());
+        $data = $request->validated();
+        
+        // Adiciona o user_id do usuário autenticado
+        $data['user_id'] = auth()->id();
+        
+        $driver = Drivers::create($data);
         $driver->load('user');
         
         return response()->json([

@@ -39,7 +39,8 @@ class UpdateDriverRequest extends FormRequest
                 'max:255',
                 Rule::unique('drivers', 'email')->ignore($driverId)
             ],
-            'password' => 'sometimes|required|string|min:6',
+            'password' => 'sometimes|required|string|min:8',
+            'password_confirmation' => 'required_with:password|same:password',
         ];
     }
 
@@ -56,7 +57,9 @@ class UpdateDriverRequest extends FormRequest
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'O e-mail deve ser válido.',
             'email.unique' => 'Este e-mail já está cadastrado.',
-            'password.min' => 'A senha deve ter no mínimo 6 caracteres.',
+            'password.min' => 'A senha deve ter no mínimo 8 caracteres.',
+            'password_confirmation.required_with' => 'A confirmação de senha é obrigatória quando a senha é informada.',
+            'password_confirmation.same' => 'As senhas não coincidem.',
         ];
     }
 }
