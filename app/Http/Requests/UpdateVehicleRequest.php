@@ -22,7 +22,7 @@ class UpdateVehicleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $vehicleId = $this->route('vehicles');
+        $vehicleId = $this->route('vehicle');
 
         return [
             'driver_id' => 'sometimes|exists:drivers,id',
