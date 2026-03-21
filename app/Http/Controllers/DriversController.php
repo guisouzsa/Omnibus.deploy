@@ -6,6 +6,7 @@ use App\Models\Drivers;
 use App\Http\Requests\StoreDriverRequest;
 use App\Http\Requests\UpdateDriverRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class DriversController extends Controller
 {
@@ -67,7 +68,11 @@ class DriversController extends Controller
     public function destroy(string $id): JsonResponse
     {
         $driver = Drivers::findOrFail($id);
-        $driver->delete();
+
+        DB::transaction(function () use ($driver) {
+            $driver->vehicles()->update(['driver_id' => null]);
+            $driver->delete();
+        });
         
         return response()->json([
             'message' => 'Motorista deletado com sucesso.'

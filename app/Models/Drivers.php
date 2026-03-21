@@ -53,4 +53,12 @@ class Drivers extends Authenticatable
     {
         return $this->hasMany(Expenses::class, 'driver_id');
     }
+
+    /**
+     * Relacionamento com Vehicles
+     */
+    public function vehicles(): HasMany
+    {
+        return $this->hasMany(Vehicle::class, 'driver_id');
+    }
 }

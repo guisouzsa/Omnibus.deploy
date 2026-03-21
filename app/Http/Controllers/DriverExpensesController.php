@@ -15,7 +15,8 @@ class DriverExpensesController extends Controller
     public function index(Request $request): JsonResponse
     {
         $driver = $request->user();
-        $expenses = $driver->expenses()->latest()->get();
+        $perPage = max(1, min((int) $request->query('per_page', 15), 100));
+        $expenses = $driver->expenses()->latest()->paginate($perPage);
         
         return response()->json($expenses, 200);
     }

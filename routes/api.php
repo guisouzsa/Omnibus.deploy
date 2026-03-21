@@ -27,7 +27,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::get('spending-limits/user/{userId}', [App\Http\Controllers\SpendingLimitController::class, 'byUser']);
+    Route::get('spending-limits/user/{userId}/period/{year}/{month}', [App\Http\Controllers\SpendingLimitController::class, 'byPeriod']);
+    Route::get('spending-limits/check/{userId}/{year}/{month}', [App\Http\Controllers\SpendingLimitController::class, 'checkExceeded']);
+
     Route::apiResource('drivers', App\Http\Controllers\DriversController::class);
+    Route::get('expenses/summary', [App\Http\Controllers\ExpensesController::class, 'summary']);
     Route::apiResource('expenses', App\Http\Controllers\ExpensesController::class)->only(['index', 'show', 'destroy']);
     Route::apiResource('spending-limits', App\Http\Controllers\SpendingLimitController::class);
     Route::apiResource('vehicles', App\Http\Controllers\VehicleController::class);
