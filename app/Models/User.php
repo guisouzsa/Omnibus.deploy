@@ -63,4 +63,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(SpendingLimit::class);
     }
+
+    /**
+     * Relacionamento com Routes
+     */
+    public function routes(): HasMany
+    {
+        return $this->hasMany(Route::class);
+    }
 }

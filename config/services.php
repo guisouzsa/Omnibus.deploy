@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'geocoding' => [
+        'timeout' => (int) env('GEOCODING_TIMEOUT', 10),
+        'ssl_verify' => filter_var(env('GEOCODING_SSL_VERIFY', env('APP_ENV') !== 'local'), FILTER_VALIDATE_BOOL),
+    ],
+
 ];
