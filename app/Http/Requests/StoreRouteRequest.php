@@ -21,6 +21,7 @@ class StoreRouteRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'school_id' => 'nullable|integer|exists:schools,id',
             'start_point' => 'required|string|max:255',
             'start_point_cep' => 'nullable|string|min:8|max:9',
             'start_point_reference' => 'nullable|string|max:255',

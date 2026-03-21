@@ -41,5 +41,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('expenses', App\Http\Controllers\ExpensesController::class)->only(['index', 'show', 'destroy']);
     Route::apiResource('spending-limits', App\Http\Controllers\SpendingLimitController::class);
     Route::apiResource('routes', RouteController::class);
+    Route::apiResource('schools', App\Http\Controllers\SchoolController::class);
     Route::apiResource('vehicles', App\Http\Controllers\VehicleController::class);
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRouteRequest;
 use App\Http\Requests\UpdateRouteRequest;
 use App\Models\Route;
+use App\Models\School;
 use App\Services\GeocodingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,7 @@ class RouteController extends Controller
         $perPage = max(1, min((int) $request->query('per_page', 15), 100));
 
         $routes = Route::where('user_id', $request->user()->id)
+            ->with('school')
             ->latest()
             ->paginate($perPage);
 
@@ -35,6 +37,20 @@ class RouteController extends Controller
     public function store(StoreRouteRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        if (!empty($data['school_id'])) {
+            $school = School::where('user_id', $request->user()->id)->find($data['school_id']);
+
+            if (!$school) {
+                return response()->json([
+                    'message' => 'Escola informada nao pertence ao usuario autenticado.',
+                ], 422);
+            }
+
+            $data['end_point'] = $school->address;
+            $data['end_point_lat'] = $school->lat;
+            $data['end_point_lng'] = $school->lng;
+        }
 
         if (
             empty($data['start_point_lat']) &&
@@ -65,7 +81,7 @@ class RouteController extends Controller
         $route = Route::create([
             ...$data,
             'user_id' => $request->user()->id,
-        ]);
+        ])->load('school');
 
         return response()->json([
             'message' => 'Rota cadastrada com sucesso.',
@@ -78,7 +94,7 @@ class RouteController extends Controller
      */
     public function show(Request $request, string $id): JsonResponse
     {
-        $route = Route::where('user_id', $request->user()->id)->findOrFail($id);
+        $route = Route::where('user_id', $request->user()->id)->with('school')->findOrFail($id);
 
         $duration = $this->estimateDurationMinutes(
             $route->start_point_lat,
@@ -110,8 +126,26 @@ class RouteController extends Controller
      */
     public function update(UpdateRouteRequest $request, string $id): JsonResponse
     {
-        $route = Route::where('user_id', $request->user()->id)->findOrFail($id);
+        $route = Route::where('user_id', $request->user()->id)->with('school')->findOrFail($id);
         $data = $request->validated();
+
+        if (array_key_exists('school_id', $data)) {
+            if (empty($data['school_id'])) {
+                $data['school_id'] = null;
+            } else {
+                $school = School::where('user_id', $request->user()->id)->find($data['school_id']);
+
+                if (!$school) {
+                    return response()->json([
+                        'message' => 'Escola informada nao pertence ao usuario autenticado.',
+                    ], 422);
+                }
+
+                $data['end_point'] = $school->address;
+                $data['end_point_lat'] = $school->lat;
+                $data['end_point_lng'] = $school->lng;
+            }
+        }
 
         if (
             empty($data['start_point_lat']) &&
@@ -140,6 +174,7 @@ class RouteController extends Controller
         }
 
         $route->update($data);
+        $route->load('school');
 
         return response()->json([
             'message' => 'Rota atualizada com sucesso.',

@@ -21,6 +21,7 @@ class UpdateRouteRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
+            'school_id' => 'sometimes|nullable|integer|exists:schools,id',
             'start_point' => 'sometimes|required|string|max:255',
             'start_point_cep' => 'sometimes|nullable|string|min:8|max:9',
             'start_point_reference' => 'sometimes|nullable|string|max:255',
