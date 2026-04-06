@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreVehicleRequest extends FormRequest
 {
@@ -22,7 +23,10 @@ class StoreVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'driver_id' => 'required|exists:drivers,id',
+            'driver_id' => [
+                'required',
+                Rule::exists('drivers', 'id')->where('user_id', $this->user()->id),
+            ],
             'plate'     => 'required|string|size:7|unique:vehicles,plate',
             'capacity'  => 'required|integer|min:1',
             'mainRoute' => 'required|string|max:255',
@@ -32,7 +36,7 @@ class StoreVehicleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'driver_id.exists' => 'O motorista informado não existe.',
+            'driver_id.exists' => 'O motorista informado não existe ou não pertence ao usuário autenticado.',
             'plate.required' => 'O número da placa é obrigatório',
             'plate.unique' => 'Esta placa já está cadastrada.',
             'capacity.required' => 'A capacidade do veículo é obrigatória.',

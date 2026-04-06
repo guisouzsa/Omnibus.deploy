@@ -16,7 +16,10 @@ class SpendingLimitController extends Controller
     public function index(Request $request): JsonResponse
     {
         $perPage = max(1, min((int) $request->query('per_page', 15), 100));
-        $limits = SpendingLimit::with('user')->latest()->paginate($perPage);
+        $limits = SpendingLimit::where('user_id', $request->user()->id)
+            ->with('user')
+            ->latest()
+            ->paginate($perPage);
         return response()->json($limits, 200);
     }
 
@@ -39,7 +42,9 @@ class SpendingLimitController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $spendingLimit = SpendingLimit::with('user')->findOrFail($id);
+        $spendingLimit = SpendingLimit::where('user_id', request()->user()->id)
+            ->with('user')
+            ->findOrFail($id);
         return response()->json($spendingLimit, 200);
     }
 
@@ -48,7 +53,7 @@ class SpendingLimitController extends Controller
      */
     public function update(UpdateSpendingLimitRequest $request, string $id): JsonResponse
     {
-        $spendingLimit = SpendingLimit::findOrFail($id);
+        $spendingLimit = SpendingLimit::where('user_id', $request->user()->id)->findOrFail($id);
         $spendingLimit->update($request->validated());
         $spendingLimit->load('user');
         
@@ -63,7 +68,7 @@ class SpendingLimitController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        $spendingLimit = SpendingLimit::findOrFail($id);
+        $spendingLimit = SpendingLimit::where('user_id', request()->user()->id)->findOrFail($id);
         $spendingLimit->delete();
         
         return response()->json([

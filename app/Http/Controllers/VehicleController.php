@@ -17,7 +17,12 @@ class VehicleController extends Controller
      */
     public function index(): JsonResponse
     {
-        $vehicles = Vehicle::with('driver')->get();
+        $vehicles = Vehicle::query()
+            ->whereHas('driver', function ($query) {
+                $query->where('user_id', request()->user()->id);
+            })
+            ->with('driver')
+            ->get();
         return response()->json($vehicles, 200);
     }
 
@@ -40,7 +45,11 @@ class VehicleController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $vehicle = Vehicle::with('driver')->findOrFail($id);
+        $vehicle = Vehicle::whereHas('driver', function ($query) {
+                $query->where('user_id', request()->user()->id);
+            })
+            ->with('driver')
+            ->findOrFail($id);
         return response()->json($vehicle, 200);
     }
 
@@ -49,7 +58,10 @@ class VehicleController extends Controller
      */
     public function update(UpdateVehicleRequest $request, string $id): JsonResponse
     {
-        $vehicle = Vehicle::findOrFail($id);
+        $vehicle = Vehicle::whereHas('driver', function ($query) use ($request) {
+            $query->where('user_id', $request->user()->id);
+            })
+            ->findOrFail($id);
         $vehicle->update($request->validated());
         $vehicle->load('driver');
 
@@ -64,7 +76,10 @@ class VehicleController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        $vehicle = Vehicle::findOrFail($id);
+        $vehicle = Vehicle::whereHas('driver', function ($query) {
+            $query->where('user_id', request()->user()->id);
+            })
+            ->findOrFail($id);
         $vehicle->delete();
 
         return response()->json([

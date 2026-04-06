@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreExpenseRequest extends FormRequest
 {
@@ -20,7 +21,10 @@ class StoreExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'driver_id' => 'required|exists:drivers,id',
+            'driver_id' => [
+                'required',
+                Rule::exists('drivers', 'id')->where('user_id', $this->user()->id),
+            ],
             'vehicle_plate' => 'required|string|max:255',
             'value' => 'required|numeric|min:0|max:999999.99',
             'proof_of_payment' => 'required|string',
@@ -34,7 +38,7 @@ class StoreExpenseRequest extends FormRequest
     {
         return [
             'driver_id.required' => 'O ID do motorista é obrigatório.',
-            'driver_id.exists' => 'O motorista informado não existe.',
+            'driver_id.exists' => 'O motorista informado não existe ou não pertence ao usuário autenticado.',
             'vehicle_plate.required' => 'A placa do veículo é obrigatória.',
             'value.required' => 'O valor da despesa é obrigatório.',
             'value.numeric' => 'O valor deve ser numérico.',

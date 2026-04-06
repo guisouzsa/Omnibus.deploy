@@ -15,7 +15,13 @@ class ExpensesController extends Controller
      */
     public function index(): JsonResponse
     {
-        $expenses = Expenses::with('driver')->latest()->get();
+        $expenses = Expenses::query()
+            ->whereHas('driver', function ($query) {
+                $query->where('user_id', request()->user()->id);
+            })
+            ->with('driver')
+            ->latest()
+            ->get();
         return response()->json($expenses, 200);
     }
 
@@ -24,7 +30,11 @@ class ExpensesController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $expense = Expenses::with('driver')->findOrFail($id);
+        $expense = Expenses::whereHas('driver', function ($query) {
+                $query->where('user_id', request()->user()->id);
+            })
+            ->with('driver')
+            ->findOrFail($id);
         return response()->json($expense, 200);
     }
 
@@ -33,7 +43,10 @@ class ExpensesController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        $expense = Expenses::findOrFail($id);
+        $expense = Expenses::whereHas('driver', function ($query) {
+                $query->where('user_id', request()->user()->id);
+            })
+            ->findOrFail($id);
         $expense->delete();
         
         return response()->json([

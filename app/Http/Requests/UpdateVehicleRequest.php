@@ -25,7 +25,10 @@ class UpdateVehicleRequest extends FormRequest
         $vehicleId = $this->route('vehicle');
 
         return [
-            'driver_id' => 'sometimes|exists:drivers,id',
+            'driver_id' => [
+                'sometimes',
+                Rule::exists('drivers', 'id')->where('user_id', $this->user()->id),
+            ],
             'plate' => [
                 'sometimes',
                 'required',

@@ -6,6 +6,7 @@ use App\Models\Drivers;
 use App\Http\Requests\StoreDriverRequest;
 use App\Http\Requests\UpdateDriverRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DriversController extends Controller
@@ -13,9 +14,11 @@ class DriversController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $drivers = Drivers::with('user')->paginate(15);
+        $drivers = Drivers::where('user_id', $request->user()->id)
+            ->with('user')
+            ->paginate(15);
         return response()->json($drivers, 200);
     }
 
@@ -41,9 +44,11 @@ class DriversController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
-        $driver = Drivers::with(['user', 'expenses'])->findOrFail($id);
+        $driver = Drivers::where('user_id', $request->user()->id)
+            ->with(['user', 'expenses'])
+            ->findOrFail($id);
         return response()->json($driver, 200);
     }
 
@@ -52,7 +57,7 @@ class DriversController extends Controller
      */
     public function update(UpdateDriverRequest $request, string $id): JsonResponse
     {
-        $driver = Drivers::findOrFail($id);
+        $driver = Drivers::where('user_id', $request->user()->id)->findOrFail($id);
         $driver->update($request->validated());
         $driver->load('user');
         
@@ -65,9 +70,9 @@ class DriversController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(Request $request, string $id): JsonResponse
     {
-        $driver = Drivers::findOrFail($id);
+        $driver = Drivers::where('user_id', $request->user()->id)->findOrFail($id);
 
         DB::transaction(function () use ($driver) {
             $driver->vehicles()->update(['driver_id' => null]);
