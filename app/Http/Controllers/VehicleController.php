@@ -21,7 +21,7 @@ class VehicleController extends Controller
             ->whereHas('driver', function ($query) {
                 $query->where('user_id', request()->user()->id);
             })
-            ->with('driver')
+            ->with('driver', 'route')
             ->get();
         return response()->json($vehicles, 200);
     }
@@ -31,13 +31,20 @@ class VehicleController extends Controller
      */
     public function store(StoreVehicleRequest $request): JsonResponse
     {
-        $vehicle = Vehicle::create($request->validated());
-        $vehicle->load('driver');
+        try {
+            $vehicle = Vehicle::create($request->validated());
+            $vehicle->load('driver', 'route');
 
-        return response()->json([
-            'message' => 'Ônibus cadastrado com sucesso.',
-            'data' => $vehicle
-        ], 201);
+            return response()->json([
+                'message' => 'Ônibus cadastrado com sucesso.',
+                'data' => $vehicle
+            ], 201);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Erro ao cadastrar ônibus',
+                'error' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     /**
@@ -48,7 +55,7 @@ class VehicleController extends Controller
         $vehicle = Vehicle::whereHas('driver', function ($query) {
                 $query->where('user_id', request()->user()->id);
             })
-            ->with('driver')
+            ->with('driver', 'route')
             ->findOrFail($id);
         return response()->json($vehicle, 200);
     }
@@ -63,7 +70,7 @@ class VehicleController extends Controller
             })
             ->findOrFail($id);
         $vehicle->update($request->validated());
-        $vehicle->load('driver');
+        $vehicle->load('driver', 'route');
 
         return response()->json([
             'message' => 'Dados do ônibus atualizados com sucesso.',

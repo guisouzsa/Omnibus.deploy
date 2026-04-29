@@ -38,6 +38,11 @@ class UpdateVehicleRequest extends FormRequest
             ],
             'capacity'  => 'sometimes|integer|min:1',
             'mainRoute' => 'sometimes|string|max:255',
+            'route_id'  => [
+                'sometimes',
+                'nullable',
+                Rule::exists('routes', 'id')->where('user_id', $this->user()->id),
+            ],
         ];
     }
 
@@ -48,6 +53,7 @@ class UpdateVehicleRequest extends FormRequest
             'plate.unique' => 'Esta placa já está cadastrada.',
             'capacity.required' => 'A capacidade do veículo é obrigatória.',
             'mainRoute.required' => 'A rota do veículo é obrigatória',
+            'route_id.exists' => 'A rota informada não existe ou não pertence ao usuário autenticado.',
         ];
     }
 }
