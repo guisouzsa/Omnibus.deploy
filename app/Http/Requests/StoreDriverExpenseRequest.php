@@ -22,7 +22,8 @@ class StoreDriverExpenseRequest extends FormRequest
         return [
             'vehicle_plate' => 'required|string|max:255',
             'value' => 'required|numeric|min:0|max:999999.99',
-            'proof_of_payment' => 'required|string',
+            'proof_of_payment' => 'required',
+            'description' => 'nullable|string|max:500',
         ];
     }
 

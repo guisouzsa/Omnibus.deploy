@@ -21,6 +21,15 @@ Route::middleware(['auth:sanctum'])->prefix('drivers')->group(function () {
     // Rotas de despesas do motorista (apenas visualizar e cadastrar)
     Route::apiResource('expenses', App\Http\Controllers\DriverExpensesController::class)->only(['index', 'store', 'show']);
     Route::get('expenses-monthly-total', [App\Http\Controllers\DriverExpensesController::class, 'monthlyTotal']);
+    
+    // Rotas de notificações do motorista
+    Route::get('notifications', [App\Http\Controllers\NotificationsController::class, 'index']);
+    Route::post('notifications', [App\Http\Controllers\NotificationsController::class, 'store']);
+    Route::get('notifications/unread-count', [App\Http\Controllers\NotificationsController::class, 'unreadCount']);
+    Route::get('notifications/route/{routeId}', [App\Http\Controllers\NotificationsController::class, 'showByRoute']);
+    Route::get('notifications/{id}', [App\Http\Controllers\NotificationsController::class, 'show']);
+    Route::put('notifications/{id}/read', [App\Http\Controllers\NotificationsController::class, 'markAsRead']);
+    Route::post('notifications/mark-all-read', [App\Http\Controllers\NotificationsController::class, 'markAllAsRead']);
 });
 
 // Rotas protegidas para secretaria (web)
@@ -43,4 +52,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('routes', RouteController::class);
     Route::apiResource('schools', App\Http\Controllers\SchoolController::class);
     Route::apiResource('vehicles', App\Http\Controllers\VehicleController::class);
+    // Profile update for secretaria (foto + infos)
+    Route::patch('user/profile', [App\Http\Controllers\ProfileController::class, 'update']);
+    
+    // Rotas de notificações para secretárias
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [App\Http\Controllers\NotificationsController::class, 'index']);
+        Route::get('/unread-count', [App\Http\Controllers\NotificationsController::class, 'unreadCount']);
+        Route::get('/{id}', [App\Http\Controllers\NotificationsController::class, 'show']);
+        Route::put('/{id}/read', [App\Http\Controllers\NotificationsController::class, 'markAsRead']);
+        Route::post('/mark-all-read', [App\Http\Controllers\NotificationsController::class, 'markAllAsRead']);
+    });
 });

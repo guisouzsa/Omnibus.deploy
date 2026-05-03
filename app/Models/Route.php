@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Route extends Model
 {
     protected $fillable = [
         'user_id',
+        'driver_id',
         'school_id',
         'name',
         'start_point',
@@ -27,8 +29,21 @@ class Route extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(Drivers::class);
+    }
+
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    /**
+     * Relacionamento com Notifications
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class, 'route_id');
     }
 }

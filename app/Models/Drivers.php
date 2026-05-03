@@ -61,4 +61,12 @@ class Drivers extends Authenticatable
     {
         return $this->hasMany(Vehicle::class, 'driver_id');
     }
+
+    /**
+     * Relacionamento com Notifications
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class, 'driver_id');
+    }
 }
