@@ -14,6 +14,8 @@ class ProfileController extends Controller
 
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255',
+            'institution' => 'sometimes|string|max:255',
             'phone' => 'sometimes|nullable|string|max:50',
             'bio' => 'sometimes|nullable|string',
             'profile_photo' => 'sometimes|nullable|file|image|max:5120',
@@ -21,7 +23,7 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $path = $file->store('secretary_photos');
+            $path = $file->store('secretary_photos', 'public');
             // gerar URL pública (requer php artisan storage:link)
             $publicUrl = Storage::url($path);
             $data['profile_photo'] = $publicUrl;
