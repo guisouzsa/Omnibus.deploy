@@ -22,6 +22,10 @@ Route::middleware(['auth:sanctum'])->prefix('drivers')->group(function () {
     Route::apiResource('expenses', App\Http\Controllers\DriverExpensesController::class)->only(['index', 'store', 'show']);
     Route::get('expenses-monthly-total', [App\Http\Controllers\DriverExpensesController::class, 'monthlyTotal']);
     
+    // Rotas de rotas para motoristas (acompanhar rota)
+    Route::get('routes', [App\Http\Controllers\DriverRoutesController::class, 'index']);
+    Route::get('routes/{id}', [App\Http\Controllers\DriverRoutesController::class, 'show']);
+    
     // Rotas de notificações do motorista
     Route::get('notifications', [App\Http\Controllers\NotificationsController::class, 'index']);
     Route::post('notifications', [App\Http\Controllers\NotificationsController::class, 'store']);

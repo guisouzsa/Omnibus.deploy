@@ -22,11 +22,28 @@ class RouteController extends Controller
     public function index(Request $request): JsonResponse
     {
         $perPage = max(1, min((int) $request->query('per_page', 15), 100));
+        $user = $request->user();
 
-        $routes = Route::where('user_id', $request->user()->id)
-            ->with('school')
-            ->latest()
-            ->paginate($perPage);
+        // Check if authenticated user is a Driver or User (secretary)
+        if ($user instanceof \App\Models\Drivers) {
+            // Driver: return own assigned routes + unassigned routes from same secretary
+            $routes = Route::where(function ($q) use ($user) {
+                    $q->where('driver_id', $user->id)
+                      ->orWhere(function ($q2) use ($user) {
+                          $q2->whereNull('driver_id')
+                             ->where('user_id', $user->user_id);
+                      });
+                })
+                ->with('school')
+                ->latest()
+                ->paginate($perPage);
+        } else {
+            // Secretary (User): return own routes
+            $routes = Route::where('user_id', $user->id)
+                ->with('school')
+                ->latest()
+                ->paginate($perPage);
+        }
 
         return response()->json($routes, 200);
     }
@@ -101,7 +118,24 @@ class RouteController extends Controller
      */
     public function show(Request $request, string $id): JsonResponse
     {
-        $route = Route::where('user_id', $request->user()->id)->with('school')->findOrFail($id);
+        $user = $request->user();
+
+        // Check if authenticated user is a Driver or User (secretary)
+        if ($user instanceof \App\Models\Drivers) {
+            // Driver: can view own assigned routes + unassigned routes from same secretary
+            $route = Route::where(function ($q) use ($user) {
+                    $q->where('driver_id', $user->id)
+                      ->orWhere(function ($q2) use ($user) {
+                          $q2->whereNull('driver_id')
+                             ->where('user_id', $user->user_id);
+                      });
+                })
+                ->with('school')
+                ->findOrFail($id);
+        } else {
+            // Secretary (User): can view own routes only
+            $route = Route::where('user_id', $user->id)->with('school')->findOrFail($id);
+        }
 
         $duration = $this->estimateDurationMinutes(
             $route->start_point_lat,
