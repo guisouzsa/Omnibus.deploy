@@ -78,6 +78,13 @@ class RouteController extends Controller
             }
         }
 
+        $data['distance'] = $this->calculateDistanceKm(
+            $data['start_point_lat'] ?? null,
+            $data['start_point_lng'] ?? null,
+            $data['end_point_lat'] ?? null,
+            $data['end_point_lng'] ?? null
+        );
+
         $route = Route::create([
             ...$data,
             'user_id' => $request->user()->id,
@@ -173,6 +180,17 @@ class RouteController extends Controller
             }
         }
 
+        // Calcular distância se coordenadas foram atualizadas
+        if (isset($data['start_point_lat']) || isset($data['start_point_lng']) || 
+            isset($data['end_point_lat']) || isset($data['end_point_lng'])) {
+            $data['distance'] = $this->calculateDistanceKm(
+                $data['start_point_lat'] ?? $route->start_point_lat,
+                $data['start_point_lng'] ?? $route->start_point_lng,
+                $data['end_point_lat'] ?? $route->end_point_lat,
+                $data['end_point_lng'] ?? $route->end_point_lng
+            );
+        }
+
         $route->update($data);
         $route->load('school');
 
@@ -220,5 +238,81 @@ class RouteController extends Controller
         $hours = $distanceKm / $averageSpeedKmH;
 
         return (int) max(1, round($hours * 60));
+    }
+
+    private function calculateDistanceKm(
+        ?float $startLat,
+        ?float $startLng,
+        ?float $endLat,
+        ?float $endLng
+    ): ?float {
+        if (!$startLat || !$startLng || !$endLat || !$endLng) {
+            return null;
+        }
+
+        try {
+            $osrmUrl = "https://router.project-osrm.org/route/v1/driving/{$startLng},{$startLat};{$endLng},{$endLat}?overview=full";
+            
+            $response = @file_get_contents($osrmUrl);
+            $data = json_decode($response, true);
+
+            if (isset($data['routes'][0]['distance'])) {
+                return round($data['routes'][0]['distance'] / 1000, 2);
+            }
+        } catch (\Throwable $e) {
+            // Se OSRM falhar, usar fórmula de Haversine
+        }
+
+        // Fallback: calcular usando Haversine (aproximado)
+        $earthKm = 6371;
+        $dLat = deg2rad($endLat - $startLat);
+        $dLng = deg2rad($endLng - $startLng);
+
+        $a = sin($dLat / 2) * sin($dLat / 2)
+            + cos(deg2rad($startLat)) * cos(deg2rad($endLat))
+            * sin($dLng / 2) * sin($dLng / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distanceKm = $earthKm * $c;
+
+        return round($distanceKm, 2);
+    }
+
+    /**
+     * Retorna dados de distância das rotas para o gráfico do dashboard
+     */
+    public function distanceChart(Request $request): JsonResponse
+    {
+        $userId = $request->user()->id;
+        
+        $routes = Route::where('user_id', $userId)
+            ->select('id', 'name', 'distance', 'start_point_lat', 'start_point_lng', 'end_point_lat', 'end_point_lng')
+            ->orderByDesc('distance')
+            ->get();
+
+        $routes = $routes->map(function ($route) {
+            if (is_null($route->distance) && $route->start_point_lat && $route->start_point_lng && 
+                $route->end_point_lat && $route->end_point_lng) {
+                $calculatedDistance = $this->calculateDistanceKm(
+                    $route->start_point_lat,
+                    $route->start_point_lng,
+                    $route->end_point_lat,
+                    $route->end_point_lng
+                );
+                if ($calculatedDistance) {
+                    $route->distance = $calculatedDistance;
+                    $route->save();
+                }
+            }
+
+            return [
+                'rota' => $route->name,
+                'km' => (float) ($route->distance ?? 0),
+            ];
+        })->filter(fn($r) => $r['km'] > 0)->values();
+
+        return response()->json([
+            'data' => $routes,
+        ], 200);
     }
 }

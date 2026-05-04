@@ -22,6 +22,7 @@ class Route extends Model
         'end_point_lat',
         'end_point_lng',
         'departure_time',
+        'distance',
     ];
 
     public function user(): BelongsTo
