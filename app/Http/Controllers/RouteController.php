@@ -34,13 +34,13 @@ class RouteController extends Controller
                              ->where('user_id', $user->user_id);
                       });
                 })
-                ->with('school')
+                    ->with('school', 'vehicle')
                 ->latest()
                 ->paginate($perPage);
         } else {
             // Secretary (User): return own routes
             $routes = Route::where('user_id', $user->id)
-                ->with('school')
+                    ->with('school', 'vehicle')
                 ->latest()
                 ->paginate($perPage);
         }
@@ -130,11 +130,11 @@ class RouteController extends Controller
                              ->where('user_id', $user->user_id);
                       });
                 })
-                ->with('school')
+                    ->with('school', 'vehicle')
                 ->findOrFail($id);
         } else {
             // Secretary (User): can view own routes only
-            $route = Route::where('user_id', $user->id)->with('school')->findOrFail($id);
+                $route = Route::where('user_id', $user->id)->with('school', 'vehicle')->findOrFail($id);
         }
 
         $duration = $this->estimateDurationMinutes(
