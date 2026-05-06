@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Route extends Model
 {
@@ -41,9 +40,9 @@ class Route extends Model
         return $this->belongsTo(School::class);
     }
 
-    public function vehicle(): HasOne
+    public function vehicle(): BelongsTo
     {
-        return $this->hasOne(Vehicle::class, 'route_id');
+        return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
 
     /**
