@@ -57,3 +57,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/mark-all-read', [App\Http\Controllers\NotificationsController::class, 'markAllAsRead']);
     });
 });
+
+.
