@@ -36,7 +36,7 @@ class ProfileController extends Controller
             // Storage::url() retorna '/storage/secretary_photos/arquivo.jpg'
             // No Railway, certifique-se de rodar: php artisan storage:link
             // Ou migre para Cloudinary para persistência entre deploys
-            $data['profile_photo'] = Storage::url($path);
+            $data['profile_photo'] = config('app.url') . '/storage/' . $path;
         }
 
         $user->fill($data);
