@@ -26,3 +26,6 @@ class Vehicle extends Model
         return $this->belongsTo(Route::class, 'route_id');
     }
 }
+
+// Model de veículo com relacionamentos de motorista e rota
+
