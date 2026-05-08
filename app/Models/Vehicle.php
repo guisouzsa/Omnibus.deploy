@@ -27,5 +27,4 @@ class Vehicle extends Model
     }
 }
 
-// Model de veículo com relacionamentos de motorista e rota
 
