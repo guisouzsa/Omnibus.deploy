@@ -26,4 +26,3 @@ class Vehicle extends Model
         return $this->belongsTo(Route::class, 'route_id');
     }
 }
-    // Validar tamanho do arquivo (máx 5MB em Base64)
