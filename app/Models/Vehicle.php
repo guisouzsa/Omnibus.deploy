@@ -23,3 +23,9 @@ class Vehicle extends Model
         return $this->belongsTo(Route::class, 'route_id');
     }
 }
+
+
+
+
+
+
