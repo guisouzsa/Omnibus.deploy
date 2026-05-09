@@ -75,16 +75,16 @@ class NotificationsController extends Controller
         }
 
         $titulos = [
-            'route_started'      => 'Rota Iniciada',
-            'route_finished'     => 'Rota Finalizada',
-            'route_delayed'      => 'Atraso na Rota',
-            'vehicle_changed'    => 'Troca de Veículo',
-            'route_maintenance'  => 'Mau Funcionamento',
-            'checkpoint_reached' => 'Ponto Alcançado',
-            'driver_changed'     => 'Motorista Alterado',
-            'no_transport'       => 'Sem Transporte',
-            'expense_added'      => 'Despesa Adicionada',
-            'route_assigned'     => 'Rota Atribuída',
+            'route_started'      => 'Motorista iniciou a rota',
+            'route_finished'     => 'Motorista finalizou a rota',
+            'route_delayed'      => 'Atraso registrado na rota',
+            'vehicle_changed'    => 'Veículo da rota alterado',
+            'route_maintenance'  => 'Ocorrência de manutenção na rota',
+            'checkpoint_reached' => 'Ponto de referência alcançado',
+            'driver_changed'     => 'Motorista da rota alterado',
+            'no_transport'       => 'Rota sem transporte disponível',
+            'expense_added'      => 'Despesa lançada na rota',
+            'route_assigned'     => 'Rota atribuída ao motorista',
         ];
 
         try {
