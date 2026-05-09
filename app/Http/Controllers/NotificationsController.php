@@ -74,12 +74,26 @@ class NotificationsController extends Controller
             ], 403);
         }
 
+        $titulos = [
+            'route_started'      => 'Rota Iniciada',
+            'route_finished'     => 'Rota Finalizada',
+            'route_delayed'      => 'Atraso na Rota',
+            'vehicle_changed'    => 'Troca de Veículo',
+            'route_maintenance'  => 'Mau Funcionamento',
+            'checkpoint_reached' => 'Ponto Alcançado',
+            'driver_changed'     => 'Motorista Alterado',
+            'no_transport'       => 'Sem Transporte',
+            'expense_added'      => 'Despesa Adicionada',
+            'route_assigned'     => 'Rota Atribuída',
+        ];
+
         try {
             $notification = Notification::create([
                 'driver_id' => $user->id,
                 'route_id'  => $validated['route_id'],
                 'type'      => $validated['type'],
                 'message'   => $validated['message'],
+                'title'     => $titulos[$validated['type']] ?? $validated['type'],
             ]);
 
             return response()->json([
