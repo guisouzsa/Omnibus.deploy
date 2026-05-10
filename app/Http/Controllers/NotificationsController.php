@@ -23,7 +23,11 @@ class NotificationsController extends Controller
                 ->latest()
                 ->paginate($perPage);
         } else {
-            $notifications = Notification::with('route', 'driver')
+            // Secretária: retorna apenas notificações de motoristas que ela cadastrou
+            $notifications = Notification::whereHas('driver', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+                ->with('route', 'driver')
                 ->latest()
                 ->paginate($perPage);
         }
@@ -122,6 +126,16 @@ class NotificationsController extends Controller
             ], 403);
         }
 
+        // Secretária: validar que a notificação é de um driver seu
+        if (!$user->is_driver) {
+            $driverBelongsToUser = $notification->driver()->where('user_id', $user->id)->exists();
+            if (!$driverBelongsToUser) {
+                return response()->json([
+                    'message' => 'Não autorizado a acessar esta notificação.'
+                ], 403);
+            }
+        }
+
         return response()->json($notification->load('route', 'driver'), 200);
     }
 
@@ -137,6 +151,16 @@ class NotificationsController extends Controller
             return response()->json([
                 'message' => 'Não autorizado a marcar esta notificação como lida.'
             ], 403);
+        }
+
+        // Secretária: validar que a notificação é de um driver seu
+        if (!$user->is_driver) {
+            $driverBelongsToUser = $notification->driver()->where('user_id', $user->id)->exists();
+            if (!$driverBelongsToUser) {
+                return response()->json([
+                    'message' => 'Não autorizado a marcar esta notificação como lida.'
+                ], 403);
+            }
         }
 
         try {
@@ -167,7 +191,11 @@ class NotificationsController extends Controller
                     ->where('read', false)
                     ->update(['read' => true, 'read_at' => now()]);
             } else {
-                Notification::where('read', false)
+                // Secretária: marcar apenas notificações de drivers que ela cadastrou
+                Notification::whereHas('driver', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                    ->where('read', false)
                     ->update(['read' => true, 'read_at' => now()]);
             }
 
@@ -194,7 +222,12 @@ class NotificationsController extends Controller
                 ->where('read', false)
                 ->count();
         } else {
-            $count = Notification::where('read', false)->count();
+            // Secretária: contar apenas notificações de drivers que ela cadastrou
+            $count = Notification::whereHas('driver', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+                ->where('read', false)
+                ->count();
         }
 
         return response()->json(['unread_count' => $count], 200);
