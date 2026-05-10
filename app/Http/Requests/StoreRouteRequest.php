@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRouteRequest extends FormRequest
 {
@@ -21,6 +22,11 @@ class StoreRouteRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'driver_id' => [
+                'required',
+                'integer',
+                Rule::exists('drivers', 'id')->where(fn ($query) => $query->where('user_id', $this->user()->id)),
+            ],
             'school_id' => 'nullable|integer|exists:schools,id',
             'start_point' => 'required|string|max:255',
             'start_point_cep' => 'nullable|string|min:8|max:9',
