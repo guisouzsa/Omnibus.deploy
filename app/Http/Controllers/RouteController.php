@@ -34,13 +34,13 @@ class RouteController extends Controller
                              ->where('user_id', $user->user_id);
                       });
                 })
-                    ->with('school', 'vehicle')
+                    ->with('school', 'vehicle', 'driver')
                 ->latest()
                 ->paginate($perPage);
         } else {
             // Secretary (User): return own routes
             $routes = Route::where('user_id', $user->id)
-                    ->with('school', 'vehicle')
+                    ->with('school', 'vehicle', 'driver')
                 ->latest()
                 ->paginate($perPage);
         }
@@ -105,7 +105,7 @@ class RouteController extends Controller
         $route = Route::create([
             ...$data,
             'user_id' => $request->user()->id,
-        ])->load('school');
+        ])->load('school', 'driver');
 
         return response()->json([
             'message' => 'Rota cadastrada com sucesso.',
@@ -130,11 +130,11 @@ class RouteController extends Controller
                              ->where('user_id', $user->user_id);
                       });
                 })
-                    ->with('school', 'vehicle')
+                    ->with('school', 'vehicle', 'driver')
                 ->findOrFail($id);
         } else {
             // Secretary (User): can view own routes only
-                $route = Route::where('user_id', $user->id)->with('school', 'vehicle')->findOrFail($id);
+                $route = Route::where('user_id', $user->id)->with('school', 'vehicle', 'driver')->findOrFail($id);
         }
 
         $duration = $this->estimateDurationMinutes(
@@ -167,7 +167,7 @@ class RouteController extends Controller
      */
     public function update(UpdateRouteRequest $request, string $id): JsonResponse
     {
-        $route = Route::where('user_id', $request->user()->id)->with('school')->findOrFail($id);
+        $route = Route::where('user_id', $request->user()->id)->with('school', 'driver')->findOrFail($id);
         $data = $request->validated();
 
         if (array_key_exists('school_id', $data)) {
@@ -226,7 +226,7 @@ class RouteController extends Controller
         }
 
         $route->update($data);
-        $route->load('school');
+        $route->load('school', 'driver');
 
         return response()->json([
             'message' => 'Rota atualizada com sucesso.',

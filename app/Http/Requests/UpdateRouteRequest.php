@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRouteRequest extends FormRequest
 {
@@ -21,6 +22,12 @@ class UpdateRouteRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
+            'driver_id' => [
+                'sometimes',
+                'required',
+                'integer',
+                Rule::exists('drivers', 'id')->where(fn ($query) => $query->where('user_id', $this->user()->id)),
+            ],
             'school_id' => 'sometimes|nullable|integer|exists:schools,id',
             'start_point' => 'sometimes|required|string|max:255',
             'start_point_cep' => 'sometimes|nullable|string|min:8|max:9',

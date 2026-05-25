@@ -19,13 +19,7 @@ class DriverRoutesController extends Controller
     public function index(Request $request): JsonResponse
     {
         $driver = $request->user();
-        $routes = RouteModel::where(function ($q) use ($driver) {
-                $q->where('driver_id', $driver->id)
-                  ->orWhere(function ($q2) use ($driver) {
-                      $q2->whereNull('driver_id')
-                         ->where('user_id', $driver->user_id);
-                  });
-            })
+        $routes = RouteModel::where('driver_id', $driver->id)
             ->with('school')
             ->latest()
             ->get();
@@ -42,13 +36,7 @@ class DriverRoutesController extends Controller
     {
         $driver = $request->user();
         $route = RouteModel::where('id', $id)
-            ->where(function ($q) use ($driver) {
-                $q->where('driver_id', $driver->id)
-                  ->orWhere(function ($q2) use ($driver) {
-                      $q2->whereNull('driver_id')
-                         ->where('user_id', $driver->user_id);
-                  });
-            })
+            ->where('driver_id', $driver->id)
             ->with('school')
             ->firstOrFail();
 

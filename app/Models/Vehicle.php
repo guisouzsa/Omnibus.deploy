@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+// Model de veículo com relacionamentos de motorista e rota
 class Vehicle extends Model
 {
     protected $fillable = [
@@ -19,4 +20,11 @@ class Vehicle extends Model
     {
         return $this->belongsTo(Drivers::class, 'driver_id');
     }
+
+    public function route(): BelongsTo
+    {
+        return $this->belongsTo(Route::class, 'route_id');
+    }
 }
+
+
